@@ -22,6 +22,37 @@
     <version>0.1.2</version>
   </parent>
 
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>com.theoryinpractise</groupId>
+	<artifactId>clojure-maven-plugin</artifactId>
+	<version>1.7.1</version>
+	<extensions>true</extensions>
+	<configuration>
+	  <compileDeclaredNamespaceOnly>true</compileDeclaredNamespaceOnly>
+	  <testNamespaces>
+	    <namespace>!clojure.data.test-runner</namespace>
+	  </testNamespaces>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojurescript</artifactId>
+      <version>1.8.40</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.8.0</version>
+    </dependency>
+  </dependencies>
+
   <scm>
     <connection>scm:git:git@github.com:clojure/data.csv</connection>
     <developerConnection>scm:git:git@github.com:clojure/data.csv</developerConnection>
