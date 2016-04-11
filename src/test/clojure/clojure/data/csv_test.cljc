@@ -1,9 +1,10 @@
 (ns clojure.data.csv-test
-  (:use
-   [clojure.test :only (deftest is)]
-   [clojure.data.csv :only (read-csv write-csv)])
-  (:import
-   [java.io Reader StringReader StringWriter EOFException]))
+  (:require
+   #?(:clj [clojure.test :refer [deftest is]]
+      :cljs [cljs.test :refer-macros [deftest is]])
+   [clojure.data.csv :refer [read-csv write-csv]])
+  (:import #?(:clj [java.io Reader StringReader StringWriter EOFException]
+              :cljs [])))
 
 (def ^{:private true} simple
   "Year,Make,Model
@@ -42,23 +43,23 @@ air, moon roof, loaded\",4799.00")
            ["1997" "Ford" "E350" "ac, abs, moon" "3000.00"]))
     (is (= (last csv)
            ["1996" "Jeep" "Grand Cherokee", "MUST SELL!\nair, moon roof, loaded" "4799.00"]))))
-        
+
+
+(defn create-stringwriter []
+  #?(:clj (StringWriter.)
+     :cljs (clojure.data.csv/Writer. "")))
 
 (deftest reading-and-writing
-  (let [string-writer (StringWriter.)]
+  (let [string-writer (create-stringwriter)]
     (->> simple read-csv (write-csv string-writer))
     (is (= simple
 	   (str string-writer)))))
 
 (deftest throw-if-quoted-on-eof
   (let [s "ab,\"de,gh\nij,kl,mn"]
-    (try
-      (doall (read-csv s))
-      (is false "No exception thrown")
-      (catch Exception e
-        (is (or (instance? java.io.EOFException e)
-                (and (instance? RuntimeException e)
-                     (instance? java.io.EOFException (.getCause e)))))))))
+    (is (thrown-with-msg? #?(:clj java.io.EOFException :cljs js/Error)
+                          #"CSV error \(unexpected end of file\)"
+                          (doall (read-csv s))))))
 
 (deftest parse-line-endings
   (let [csv (read-csv "Year,Make,Model\n1997,Ford,E350")]
